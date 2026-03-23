@@ -277,17 +277,11 @@ const PSYCHE = {
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             View Profile
           </button>
-          ${(typeof PSYCHE_HD !== 'undefined' && PSYCHE_HD.getForUser(u.id).filter(t=>!['resolved','closed'].includes(t.status)).length > 0) ? `
           <button class="nav-dropdown-item nav-dropdown-item--tickets" data-page="page-tickets" role="menuitem">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
             My Tickets
-            ${(function(){
-              const unread = typeof PSYCHE_NOTIFICATIONS !== 'undefined'
-                ? PSYCHE_NOTIFICATIONS.getForUser(u.id).filter(n => !n.read && (n.type==='ticket_reply'||n.type==='ticket_claimed'||n.type==='ticket_resolved'||n.type==='ticket_escalated')).length
-                : 0;
-              return unread > 0 ? `<span class="nav-ticket-badge">${unread}</span>` : '';
-            })()}
-          </button>` : ''}
+            <span class="nav-ticket-badge" id="ticket-badge" style="display:none"></span>
+          </button>
           <button class="nav-dropdown-item" data-page="page-settings" role="menuitem">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
             Settings
@@ -330,6 +324,18 @@ const PSYCHE = {
 
       // Sign out
       menu.querySelector('#signout-btn').addEventListener('click', () => PSYCHE.logout());
+
+      // Load ticket count from API
+      if (typeof PsycheAPI !== 'undefined') {
+        PsycheAPI.getTickets().then(data => {
+          const active = (data.tickets || []).filter(t => t.status === 'open' || t.status === 'in_progress');
+          const badge = document.getElementById('ticket-badge');
+          if (badge && active.length > 0) {
+            badge.textContent = active.length;
+            badge.style.display = '';
+          }
+        }).catch(() => {});
+      }
 
     } else {
       if (signinBtn) signinBtn.style.display = '';
