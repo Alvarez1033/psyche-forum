@@ -125,19 +125,19 @@
         </form>
         <div class="hero-stats" aria-label="Community statistics">
           <div class="hero-stat">
-            <span class="hero-stat-number">312</span>
+            <span class="hero-stat-number" id="stat-members">—</span>
             <span class="hero-stat-label">Members</span>
           </div>
           <div class="hero-stat">
-            <span class="hero-stat-number">87</span>
+            <span class="hero-stat-number" id="stat-discussions">—</span>
             <span class="hero-stat-label">Discussions</span>
           </div>
           <div class="hero-stat">
-            <span class="hero-stat-number">24</span>
+            <span class="hero-stat-number" id="stat-contributors">—</span>
             <span class="hero-stat-label">Expert Contributors</span>
           </div>
           <div class="hero-stat">
-            <span class="hero-stat-number">48</span>
+            <span class="hero-stat-number" id="stat-topics">—</span>
             <span class="hero-stat-label">Topics</span>
           </div>
         </div>
@@ -1135,6 +1135,17 @@
 
 <!-- Scripts -->
 <script src="js/api.js"></script>
+<script>
+(function(){
+  fetch('/api/stats').then(r=>r.json()).then(d=>{
+    var el;
+    if((el=document.getElementById('stat-members'))&&d.members!=null) el.textContent=d.members>=1000?(d.members/1000).toFixed(1)+'k':d.members;
+    if((el=document.getElementById('stat-discussions'))&&d.discussions!=null) el.textContent=d.discussions>=1000?(d.discussions/1000).toFixed(1)+'k':d.discussions;
+    if((el=document.getElementById('stat-contributors'))&&d.contributors!=null) el.textContent=d.contributors;
+    if((el=document.getElementById('stat-topics'))&&d.topics!=null) el.textContent=d.topics;
+  }).catch(function(){});
+})();
+</script>
 <script src="js/roles.js"></script>
 <script src="js/data.js"></script>
 <script src="js/main.js"></script>
