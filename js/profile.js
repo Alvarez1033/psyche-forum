@@ -667,7 +667,11 @@ function renderProfilePage(userId) {
           <div class="profile-actions">
             ${isOwn
               ? `<button class="btn-profile-edit" data-page="page-settings">Edit Profile</button>`
-              : `<button class="btn-profile-follow">Follow</button>
+              : `${(function(){
+                  const followers = u.followers || [];
+                  const isFollowing = PSYCHE.currentUser && followers.includes(PSYCHE.currentUser.id);
+                  return '<button class="btn-profile-follow' + (isFollowing ? ' following' : '') + '" data-uid="' + u.id + '">' + (isFollowing ? 'Following' : 'Follow') + '</button>';
+                })()}
                  <button class="btn-profile-msg">Message</button>`
             }
           </div>
@@ -774,6 +778,38 @@ function renderProfilePage(userId) {
         </aside>
       </div>
     </div>`;
+
+  // Follow button handler
+  const followBtn = page.querySelector('.btn-profile-follow');
+  if (followBtn) {
+    followBtn.addEventListener('click', function() {
+      if (!PSYCHE.currentUser) { if (typeof openAuthModal === 'function') openAuthModal(); return; }
+      const targetId = this.dataset.uid;
+      const target = PSYCHE.users[targetId];
+      if (!target) return;
+      if (!target.followers) target.followers = [];
+      const idx = target.followers.indexOf(PSYCHE.currentUser.id);
+      if (idx > -1) {
+        target.followers.splice(idx, 1);
+        this.classList.remove('following');
+        this.textContent = 'Follow';
+        if (typeof showToast === 'function') showToast('Unfollowed ' + (target.displayName || target.username));
+      } else {
+        target.followers.push(PSYCHE.currentUser.id);
+        this.classList.add('following');
+        this.textContent = 'Following';
+        if (typeof showToast === 'function') showToast('Following ' + (target.displayName || target.username));
+      }
+      if (typeof PSYCHE_STORE !== 'undefined') PSYCHE_STORE.saveAll();
+    });
+    // Hover behavior for unfollow
+    followBtn.addEventListener('mouseenter', function() {
+      if (this.classList.contains('following')) { this.textContent = 'Unfollow'; this.classList.add('unfollow-hover'); }
+    });
+    followBtn.addEventListener('mouseleave', function() {
+      if (this.classList.contains('following')) { this.textContent = 'Following'; this.classList.remove('unfollow-hover'); }
+    });
+  }
 }
 
 
