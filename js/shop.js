@@ -1198,6 +1198,101 @@ const PSYCHE_TICKETS = {
 };
 
 // ============================================================
+// MEMBERSHIP UPGRADE SECTION (for settings page)
+// ============================================================
+function renderUpgradeSection(user) {
+  const currentRole = user?.role || 'member';
+  const isPro = currentRole === 'pro';
+  const isPremium = currentRole === 'premium';
+  const isUpgraded = isPro || isPremium;
+
+  const proPerks = [
+    'Custom profile badge & color',
+    'Priority post approval',
+    'Extended bio & profile fields',
+    'Early access to new features',
+    'Ad-free browsing experience',
+  ];
+  const premiumPerks = [
+    'Everything in Pro',
+    'Premium ✦ badge with gold styling',
+    'Featured in "Top Members" section',
+    'Priority support & ticket handling',
+    'Exclusive community channels',
+    'Monthly psychology resource pack',
+  ];
+
+  if (isPremium) {
+    return `<div style="background:linear-gradient(135deg,#1e1b4b,#312e81);border:1px solid #4f46e5;border-radius:12px;padding:20px;margin-top:12px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:18px">✦</span><span style="font-weight:700;color:#a5b4fc">Premium Member</span></div>
+      <p style="font-size:13px;color:#c7d2fe;margin-bottom:12px">You have access to all premium features. Thank you for supporting Psyche!</p>
+      <div style="font-size:12px;color:#818cf8">${premiumPerks.map(p => '✓ ' + p).join('<br>')}</div>
+    </div>`;
+  }
+
+  if (isPro) {
+    return `<div style="background:var(--surface2,#1c2128);border:1px solid var(--div,#30363d);border-radius:12px;padding:20px;margin-top:12px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:18px">⚡</span><span style="font-weight:700;color:var(--pri,#818cf8)">Pro Member</span></div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:12px">You're enjoying Pro features.</p>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:16px">${proPerks.map(p => '✓ ' + p).join('<br>')}</div>
+      <button onclick="showUpgradeModal('premium')" style="padding:8px 20px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;border:none;border-radius:8px;font-weight:600;font-size:13px;cursor:pointer">Upgrade to Premium ✦</button>
+    </div>`;
+  }
+
+  return `<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+    <div style="background:var(--surface2,#1c2128);border:1px solid var(--div,#30363d);border-radius:12px;padding:20px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-size:18px">⚡</span><span style="font-weight:700;font-size:15px">Pro</span></div>
+      <div style="font-size:20px;font-weight:700;color:var(--pri,#818cf8);margin-bottom:12px">$4.99<span style="font-size:12px;font-weight:400;color:var(--muted)">/mo</span></div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.8;margin-bottom:16px">${proPerks.map(p => '✓ ' + p).join('<br>')}</div>
+      <button onclick="showUpgradeModal('pro')" style="width:100%;padding:8px;background:var(--pri,#818cf8);color:#fff;border:none;border-radius:8px;font-weight:600;font-size:13px;cursor:pointer">Get Pro</button>
+    </div>
+    <div style="background:linear-gradient(135deg,#1e1b4b,#312e81);border:1px solid #4f46e5;border-radius:12px;padding:20px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-size:18px">✦</span><span style="font-weight:700;font-size:15px;color:#a5b4fc">Premium</span></div>
+      <div style="font-size:20px;font-weight:700;color:#a5b4fc;margin-bottom:12px">$9.99<span style="font-size:12px;font-weight:400;color:#818cf8">/mo</span></div>
+      <div style="font-size:12px;color:#c7d2fe;line-height:1.8;margin-bottom:16px">${premiumPerks.map(p => '✓ ' + p).join('<br>')}</div>
+      <button onclick="showUpgradeModal('premium')" style="width:100%;padding:8px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;border:none;border-radius:8px;font-weight:600;font-size:13px;cursor:pointer">Get Premium</button>
+    </div>
+  </div>`;
+}
+
+function showUpgradeModal(tier) {
+  const isPro = tier === 'pro';
+  const name = isPro ? 'Pro ⚡' : 'Premium ✦';
+  const price = isPro ? '$4.99/mo' : '$9.99/mo';
+  const color = isPro ? '#818cf8' : '#a5b4fc';
+  const bg = isPro ? 'var(--surface,#161b22)' : 'linear-gradient(135deg,#1e1b4b,#312e81)';
+  const perks = isPro
+    ? ['Custom profile badge & color','Priority post approval','Extended bio & profile fields','Early access to new features','Ad-free browsing experience']
+    : ['Everything in Pro','Premium ✦ badge with gold styling','Featured in "Top Members" section','Priority support & ticket handling','Exclusive community channels','Monthly psychology resource pack'];
+
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+  overlay.innerHTML = `<div style="background:${bg};border:1px solid ${color}44;border-radius:16px;padding:28px;max-width:400px;width:100%;color:var(--text,#e6edf3)">
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-size:32px;margin-bottom:8px">${isPro ? '⚡' : '✦'}</div>
+      <div style="font-size:20px;font-weight:700;color:${color}">${name}</div>
+      <div style="font-size:24px;font-weight:700;margin-top:4px">${price}</div>
+    </div>
+    <div style="font-size:13px;line-height:2;margin-bottom:20px;padding:0 8px">${perks.map(p => '<div>✓ ' + p + '</div>').join('')}</div>
+    <button id="upgradeConfirmBtn" style="width:100%;padding:12px;background:${isPro ? 'var(--pri,#818cf8)' : 'linear-gradient(135deg,#4f46e5,#7c3aed)'};color:#fff;border:none;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;margin-bottom:10px">Subscribe to ${name}</button>
+    <button id="upgradeCancelBtn" style="width:100%;padding:10px;background:transparent;color:var(--muted,#8b949e);border:1px solid var(--div,#30363d);border-radius:10px;font-size:13px;cursor:pointer">Maybe later</button>
+  </div>`;
+  document.body.appendChild(overlay);
+
+  overlay.querySelector('#upgradeCancelBtn').addEventListener('click', () => overlay.remove());
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+  overlay.querySelector('#upgradeConfirmBtn').addEventListener('click', () => {
+    if (!PSYCHE.currentUser) { overlay.remove(); if (typeof openAuth === 'function') openAuth(); return; }
+    PSYCHE.currentUser.role = tier;
+    if (PSYCHE.users[PSYCHE.currentUser.id]) PSYCHE.users[PSYCHE.currentUser.id].role = tier;
+    if (typeof PSYCHE_STORE !== 'undefined') PSYCHE_STORE.saveAll();
+    overlay.remove();
+    if (typeof showToast === 'function') showToast('Welcome to ' + name + '! Your membership is now active.');
+    if (typeof PSYCHE !== 'undefined') PSYCHE._updateNav();
+  });
+}
+
+// ============================================================
 // COLOR HELPER
 // ============================================================
 function colorToHex(name) {

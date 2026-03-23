@@ -928,7 +928,7 @@ function renderSettingsPage() {
             </div>
             <div class="settings-divider"></div>
             <div class="settings-subsection-title">Membership</div>
-            \${typeof renderUpgradeSection === 'function' ? renderUpgradeSection(u) : ''}
+            ${typeof renderUpgradeSection === 'function' ? renderUpgradeSection(u) : ''}
           </section>
 
           <!-- TOPICS SECTION -->
